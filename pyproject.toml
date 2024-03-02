@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "vita-nail"
+version = "0.1.0"
+description = ""
+authors = ["Lewbertsklol <lewbertsklol@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+psycopg = {extras = ["binary"], version = "^3.1.18"}
+django = "^5.0.2"
+djangorestframework = "^3.14.0"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
