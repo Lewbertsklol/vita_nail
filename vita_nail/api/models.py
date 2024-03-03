@@ -1,4 +1,3 @@
-from vita_nail import settings
 from django.db import models
 
 # Create your models here.
@@ -10,11 +9,10 @@ class User(models.Model):
     phone = models.CharField(max_length=12, unique=True)
 
     def __str__(self) -> str:
-        return f'{self.name} {self.surname}'
+        return f'{self.name} {self.surname} {self.phone}'
 
 
 class Window(models.Model):
-    date = models.DateTimeField(unique=True)
     date = models.DateTimeField(unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=None, blank=True, null=True)
 

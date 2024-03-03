@@ -1,5 +1,7 @@
 from . import serializers
 from . import models
+from . import bot_notifications
+import asyncio
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view
@@ -45,15 +47,15 @@ def admin_windows_view(request: Request):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors)
-    
-    
+
+
 @api_view(['GET', 'POST', 'PUT'])
 def admin_works_view(request: Request):
     if request.method == 'GET':
         works = models.Work.objects.all()
         serializer = serializers.WorkSerializer(works, many=True)
         return Response(serializer.data)
-    
+
     if request.method == 'POST':
         serializer = serializers.WorkSerializer(data=request.data)
         if serializer.is_valid():
@@ -64,15 +66,17 @@ def admin_works_view(request: Request):
 
 @api_view(['GET', 'PUT'])
 def user_windows_view(request: Request):
-    if request.method == 'PUT':
-        instance = models.Window.objects.get(date=request.data['date'])
-        serializer = serializers.WindowSerializer(instance=instance, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors)
 
     if request.method == 'GET':
         windows = models.Window.objects.filter(user=None)
         serializer = serializers.WindowSerializer(windows, many=True)
         return Response(serializer.data)
+
+    if request.method == 'PUT':
+        instance = models.Window.objects.get(date=request.data['date'])
+        serializer = serializers.WindowSerializer(instance=instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            asyncio.run(bot_notifications.send_notification_by_tgbot(instance))
+            return Response(serializer.data)
+        return Response(serializer.errors)
