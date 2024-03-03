@@ -15,8 +15,8 @@ class PutUserWindowSerializer(UserSerializer):
 
 
 class WindowSerializer(serializers.ModelSerializer):
-    user = PutUserWindowSerializer()
-    is_rewrite = serializers.BooleanField(default=False)
+    user = PutUserWindowSerializer(required=False)
+    is_rewrite = serializers.BooleanField(default=False, allow_null=True)
 
     class Meta:
         model = Window
@@ -44,10 +44,15 @@ class WindowSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         validated_data = super().validate(attrs)
-        validated_data = self.user_unexpected_to_rewrite_validator(validated_data)
+        if validated_data.get('user'):
+            validated_data = self.user_unexpected_to_rewrite_validator(validated_data)
         return validated_data
 
-    def update(self, instance: Window, validated_data: dict):
+    def create(self, validated_data: dict) -> Window:
+        validated_data.pop('is_rewrite')
+        return super().create(validated_data)
+
+    def update(self, instance: Window, validated_data: dict) -> Window:
         user_data = validated_data.pop('user')
         is_rewrite = validated_data.get('is_rewrite')
         user, created = User.objects.get_or_create(phone=user_data['phone'], defaults=user_data)
