@@ -2,14 +2,17 @@ from . import serializers
 from . import models
 from . import bot_notifications
 import asyncio
+from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+
 
 # Create your views here.
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([permissions.IsAdminUser])
 def admin_users_view(request: Request):
     '''
     Show all users or create one to admin
@@ -38,6 +41,7 @@ def admin_users_view(request: Request):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([permissions.IsAdminUser])
 def admin_windows_view(request: Request):
     '''
     Show all windows or create one by admin
@@ -73,7 +77,6 @@ def admin_windows_view(request: Request):
                 return Response(serializer.data)
             return Response(serializer.errors)
         if user_data:
-            print(request.data['date'])
             instance: models.Window = models.Window.objects.get_or_create(
                 date=request.data['date'],
                 defaults={'date': request.data['date']}
@@ -86,6 +89,7 @@ def admin_windows_view(request: Request):
 
 
 @api_view(['GET', 'POST', 'PUT'])
+@permission_classes([permissions.IsAdminUser])
 def admin_works_view(request: Request):
 
     if request.method == 'GET':
@@ -102,6 +106,7 @@ def admin_works_view(request: Request):
 
 
 @api_view(['GET', 'PUT'])
+@permission_classes([permissions.AllowAny])
 def user_windows_view(request: Request):
     '''
     Show all free windows or get writing or rewriting to another window
