@@ -1,2 +1,4 @@
 .vscode
 .env
+.venv
+pg_data
