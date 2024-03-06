@@ -1,4 +1,5 @@
-version: "4.28"
+version: "3.8"
+name: "vita_nail"
 services:
   db:
     container_name: "db_vitanail"
@@ -16,6 +17,16 @@ services:
       - "${PORT}:5432"
     networks:
       - postgres
+  tgbot:
+    container_name: "tgbot"
+    image: tgbot:latest
+    restart: always
+    env_file:
+      - path: .env
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+    ports:
+      - "8000"
 networks:
   postgres:
     driver: bridge
