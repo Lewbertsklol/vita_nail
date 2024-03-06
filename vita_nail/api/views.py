@@ -2,16 +2,15 @@ from . import serializers
 from . import models
 from . import bot_notifications
 import asyncio
-from rest_framework import permissions
+from rest_framework import permissions, authentication
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
-
-# Create your views here.
 
 
 @api_view(['GET', 'POST'])
+@authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAdminUser])
 def admin_users_view(request: Request):
     '''
@@ -41,6 +40,7 @@ def admin_users_view(request: Request):
 
 
 @api_view(['GET', 'POST'])
+@authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAdminUser])
 def admin_windows_view(request: Request):
     '''
@@ -89,6 +89,7 @@ def admin_windows_view(request: Request):
 
 
 @api_view(['GET', 'POST', 'PUT'])
+@authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAdminUser])
 def admin_works_view(request: Request):
 
