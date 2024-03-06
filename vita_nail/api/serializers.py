@@ -8,6 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('name', 'surname', 'phone')
+    
+    
 
 
 class PutUserWindowSerializer(UserSerializer):

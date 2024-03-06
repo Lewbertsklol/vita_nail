@@ -1,3 +1,4 @@
+from operator import delitem
 from . import serializers
 from . import models
 from . import bot_notifications
@@ -8,8 +9,7 @@ from rest_framework.request import Request
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
 
-
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'DELETE'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAdminUser])
 def admin_users_view(request: Request):
@@ -24,6 +24,11 @@ def admin_users_view(request: Request):
         "surname": "example_surnamename",
         "phone": "123456789" // unique
     }
+    DELETE: delete user by phone
+    example of body request:
+    {
+        "phone": "123456789"
+    }
     '''
 
     if request.method == 'GET':
@@ -37,6 +42,19 @@ def admin_users_view(request: Request):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors)
+
+    if request.method == 'DELETE':
+        user = models.User.objects.filter(phone=request.data['phone']).first()
+        if user:
+            user.delete()
+            return Response({
+                'user': user.phone,
+                'message': 'User deleted'
+            })
+        return Response({
+            'user': request.data['phone'],
+            'message': 'User not found'
+        })
 
 
 @api_view(['GET', 'POST'])
