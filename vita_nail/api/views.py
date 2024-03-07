@@ -15,7 +15,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 def admin_users_view(request: Request) -> Response:
     '''
     Show all users or create one to admin
-    request: /admin/users/
+    request: /api/v1/admin/users/
     GET: return all users
     POST: create new user and return one
     example of body request:
@@ -63,7 +63,7 @@ def admin_users_view(request: Request) -> Response:
 def admin_windows_view(request: Request) -> Response:
     '''
     Show all windows or create one by admin
-    request: /admin/windows/
+    request: /api/v1/admin/windows/
     GET: return all windows
     POST: create new window and return one
     example of body request:
