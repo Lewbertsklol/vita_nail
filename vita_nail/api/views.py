@@ -12,7 +12,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 @api_view(['GET', 'POST', 'DELETE'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAdminUser])
-def admin_users_view(request: Request):
+def admin_users_view(request: Request) -> Response:
     '''
     Show all users or create one to admin
     request: /admin/users/
@@ -60,7 +60,7 @@ def admin_users_view(request: Request):
 @api_view(['GET', 'POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAdminUser])
-def admin_windows_view(request: Request):
+def admin_windows_view(request: Request) -> Response:
     '''
     Show all windows or create one by admin
     request: /admin/windows/
@@ -109,7 +109,7 @@ def admin_windows_view(request: Request):
 @api_view(['GET', 'POST', 'PUT'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAdminUser])
-def admin_works_view(request: Request):
+def admin_works_view(request: Request) -> Response:
 
     if request.method == 'GET':
         works = models.Work.objects.all()
@@ -126,7 +126,7 @@ def admin_works_view(request: Request):
 
 @api_view(['GET', 'PUT'])
 @permission_classes([permissions.AllowAny])
-def user_windows_view(request: Request):
+def user_windows_view(request: Request) -> Response:
     '''
     Show all free windows or get writing or rewriting to another window
     request: /users/windows/

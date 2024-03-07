@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from rest_framework import serializers
 from .models import User, Window, Work
 from pytz import UTC
@@ -8,8 +9,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('name', 'surname', 'phone')
-    
-    
 
 
 class PutUserWindowSerializer(UserSerializer):
@@ -44,7 +43,7 @@ class WindowSerializer(serializers.ModelSerializer):
 
         return validated_data
 
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         validated_data = super().validate(attrs)
         if validated_data.get('user'):
             validated_data = self.user_unexpected_to_rewrite_validator(validated_data)

@@ -9,17 +9,14 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
-
-TOKEN = getenv("BOT_TOKEN")
-dp = Dispatcher()
-
-
-@dp.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Hello, {hbold(message.from_user.full_name)}!")
+from . commands import Commands
+from . handlers import router
 
 
 async def main() -> None:
+    TOKEN = getenv("BOT_TOKEN")
+    dp = Dispatcher()
+    dp.include_router(router)
     bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
     await dp.start_polling(bot)
 
