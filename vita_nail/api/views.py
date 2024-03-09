@@ -14,7 +14,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 @permission_classes([permissions.IsAdminUser])
 def admin_users_view(request: Request) -> Response:
     '''
-    Show all users or create one to admin
+    Show all users or create one by admin
     request: /api/v1/admin/users/
     GET: return all users
     POST: create new user and return one
@@ -32,7 +32,7 @@ def admin_users_view(request: Request) -> Response:
     '''
 
     if request.method == 'GET':
-        users = models.User.objects.all()
+        users = models.Client.objects.all()
         serializer = serializers.UserSerializer(users, many=True)
         return Response(serializer.data)
 
@@ -44,7 +44,7 @@ def admin_users_view(request: Request) -> Response:
         return Response(serializer.errors)
 
     if request.method == 'DELETE':
-        user = models.User.objects.filter(phone=request.data['phone']).first()
+        user = models.Client.objects.filter(phone=request.data['phone']).first()
         if user:
             user.delete()
             return Response({
@@ -62,7 +62,7 @@ def admin_users_view(request: Request) -> Response:
 @permission_classes([permissions.IsAdminUser])
 def admin_windows_view(request: Request) -> Response:
     '''
-    Show all windows or create one by admin
+    Show all windows or create one with user or not by admin
     request: /api/v1/admin/windows/
     GET: return all windows
     POST: create new window and return one
@@ -78,7 +78,7 @@ def admin_windows_view(request: Request) -> Response:
             "surname": "example_surnamename",
             "phone": "123456789" // unique
         }
-    } // create window for user
+    } // create window with user
     '''
 
     if request.method == 'GET':
@@ -128,14 +128,14 @@ def admin_works_view(request: Request) -> Response:
 @permission_classes([permissions.AllowAny])
 def user_windows_view(request: Request) -> Response:
     '''
-    Show all free windows or get writing or rewriting to another window
+    Show all free windows or get writing/rewriting to another window by user
     request: /users/windows/
     GET: return all free windows
-    POST: make writing to free findow
+    PUT: make writing to free findow
     example of body request:
     {
         "date": "2022-12-12 10-00",
-    } // create free window
+    } 
     or 
     {
         "date": "2022-12-12 10-00",

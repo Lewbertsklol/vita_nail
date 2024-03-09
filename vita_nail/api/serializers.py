@@ -1,13 +1,13 @@
 from datetime import datetime
 from typing import Any
 from rest_framework import serializers
-from .models import User, Window, Work
+from .models import Client, Window, Work
 from pytz import UTC
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = Client
         fields = ('name', 'surname', 'phone')
 
 
@@ -27,7 +27,8 @@ class WindowSerializer(serializers.ModelSerializer):
         is_rewrite: bool = validated_data.get('is_rewrite')
         user_phone = validated_data.get('user').get('phone')
 
-        user: User | None = User.objects.filter(phone=user_phone).first()
+        user: Client | None = Client.objects.filter(phone=user_phone).first()
+
         if not user:
             return validated_data
 
@@ -56,7 +57,7 @@ class WindowSerializer(serializers.ModelSerializer):
     def update(self, instance: Window, validated_data: dict) -> Window:
         user_data = validated_data.pop('user')
         is_rewrite = validated_data.get('is_rewrite')
-        user, created = User.objects.get_or_create(phone=user_data['phone'], defaults=user_data)
+        user, created = Client.objects.get_or_create(phone=user_data['phone'], defaults=user_data)
         if is_rewrite:
             old_window = Window.objects.filter(user=user).latest()
             old_window.user = None
@@ -78,6 +79,6 @@ class WorkSerializer(serializers.ModelSerializer):
         user_data = validated_data.pop('user')
         window_data = validated_data.pop('window')
         work = Work.objects.create(**validated_data)
-        User.objects.create(work=work, **user_data)
+        Client.objects.create(work=work, **user_data)
         Window.objects.create(work=work, **window_data)
         return work
