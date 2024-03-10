@@ -22,8 +22,8 @@ class CommandScheme(NamedTuple):
 
 
 class Commands(Enum):
-    ACCEPT = CommandScheme('Принять', 'http://127.0.0.1:8000//api/v1/windows/')
-    DECLINE = CommandScheme('Отклонить', 'http://127.0.0.1:8000//api/v1/windows/')
+    ACCEPT = CommandScheme('Принять', 'http://127.0.0.1:8000/api/v1/windows/')
+    DECLINE = CommandScheme('Отклонить', 'http://127.0.0.1:8000/api/v1/windows/')
 
 
 inline_accepting_keyboard = InlineKeyboardBuilder().row(
@@ -41,8 +41,8 @@ inline_accepting_keyboard = InlineKeyboardBuilder().row(
 def create_message(window: Window) -> str:
     return f'Записался клиент:\n'\
         f'{window.date.strftime('%d.%m.%y на %H:%M')}\n'\
-        f'{window.user.phone}\n'\
-        f'{window.user.name} {window.user.surname}\n'\
+        f'{window.client.phone}\n'\
+        f'{window.client.name} {window.client.surname}\n'\
 
 
 
@@ -52,6 +52,6 @@ async def send_notification_by_tgbot(
     session = AiohttpSession()
     bot = Bot(TOKEN, session=session)
     message = create_message(window)
-    await bot.send_message(MY_CHAT_ID, message, reply_markup=inline_accepting_keyboard)
+    # await bot.send_message(MY_CHAT_ID, message, reply_markup=inline_accepting_keyboard)
     # await bot.send_message(VIOLA_CHAT_ID, message)  #! для Виолетты
     await session.close()

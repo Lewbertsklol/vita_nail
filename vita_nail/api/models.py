@@ -18,7 +18,7 @@ class Client(models.Model):
 
 class Window(models.Model):
     date = models.DateTimeField(unique=True, primary_key=True)
-    user = models.ForeignKey(Client, on_delete=models.CASCADE, default=None, blank=True, null=True)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, default=None, blank=True, null=True)
     is_approved = models.BooleanField(default=False)
 
     class Meta:
@@ -28,11 +28,11 @@ class Window(models.Model):
         verbose_name_plural = 'Окошки'
 
     def __str__(self) -> str:
-        return f'{self.date} - {self.user if self.user else "свободно"}'
+        return f'{self.date} - {self.client if self.client else "свободно"}'
 
 
 class Work(models.Model):
-    user = models.ForeignKey(Client, on_delete=models.CASCADE)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
     window = models.ForeignKey(Window, on_delete=models.CASCADE)
     about = models.TextField()
     price = models.IntegerField()

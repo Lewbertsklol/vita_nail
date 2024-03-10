@@ -1,132 +1,117 @@
-from operator import delitem
+import asyncio
+
 from . import serializers
 from . import models
 from . import bot_notifications
-import asyncio
+
 from rest_framework import permissions, authentication
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.viewsets import ModelViewSet
 
 
-@api_view(['GET', 'POST', 'DELETE'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAdminUser])
-def admin_users_view(request: Request) -> Response:
+class AdminClientViewSet(ModelViewSet):
     '''
-    Show all users or create one by admin
-    request: /api/v1/admin/users/
-    GET: return all users
-    POST: create new user and return one
+    Show all clients / create one / delete by admin
+    request: /api/v1/admin/clients/
+    GET: return all clients
+    POST: create new client and return one
     example of body request:
     {
         "name": "example_name",
         "surname": "example_surnamename",
         "phone": "123456789" // unique
     }
-    DELETE: delete user by phone
+    DELETE: delete client by phone
     example of body request:
     {
         "phone": "123456789"
     }
     '''
+    queryset = models.Client.objects.all()
+    serializer_class = serializers.ClientSerializer
+    permission_classes = [permissions.IsAdminUser]
+    authentication_classes = [authentication.TokenAuthentication]
 
-    if request.method == 'GET':
-        users = models.Client.objects.all()
-        serializer = serializers.UserSerializer(users, many=True)
-        return Response(serializer.data)
-
-    if request.method == 'POST':
-        serializer = serializers.UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors)
-
-    if request.method == 'DELETE':
-        user = models.Client.objects.filter(phone=request.data['phone']).first()
-        if user:
-            user.delete()
+    def destroy(self, request: Request) -> Response:
+        instance = models.Client.objects.filter(phone=request.data['phone']).first()
+        if instance:
+            instance.delete()
             return Response({
-                'user': user.phone,
-                'message': 'User deleted'
+                'client': request.data['phone'],
+                'message': 'Client deleted'
             })
         return Response({
             'user': request.data['phone'],
-            'message': 'User not found'
+            'message': 'Client not found'
         })
 
 
-@api_view(['GET', 'POST'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAdminUser])
-def admin_windows_view(request: Request) -> Response:
+class AdminWindowViewSet(ModelViewSet):
     '''
-    Show all windows or create one with user or not by admin
+    Show all windows / create one with client or not / delete by admin
     request: /api/v1/admin/windows/
     GET: return all windows
     POST: create new window and return one
     example of body request:
     {
         "date": "2022-12-12 10-00",
-    } // create free window
+    } 
     or
     {
         "date": "2022-12-12",
-        "user": {
+        "client": {
             "name": "example_name",
             "surname": "example_surnamename",
             "phone": "123456789" // unique
         }
-    } // create window with user
+    } 
+    DELETE: delete window by date
+    example of body request:
+    {
+        "date": "2022-12-12 10-00"
+    }
     '''
+    queryset = models.Window.objects.all()
+    serializer_class = serializers.WindowSerializer
+    permission_classes = [permissions.IsAdminUser]
+    authentication_classes = [authentication.TokenAuthentication]
 
-    if request.method == 'GET':
-        windows = models.Window.objects.all()
-        serializer = serializers.WindowSerializer(windows, many=True)
-        return Response(serializer.data)
-
-    if request.method == 'POST':
-        user_data = request.data.get('user', None)
-        if not user_data:
+    def create(self, request: Request) -> Response:
+        client_data = request.data.get('client', None)
+        if not client_data:
             serializer = serializers.WindowSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors)
-        if user_data:
-            instance: models.Window = models.Window.objects.get_or_create(
+        if client_data:
+            instance, created = models.Window.objects.get_or_create(
                 date=request.data['date'],
                 defaults={'date': request.data['date']}
-            )[0]
+            )
             serializer = serializers.WindowSerializer(instance=instance, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors)
 
-
-@api_view(['GET', 'POST', 'PUT'])
-@authentication_classes([authentication.TokenAuthentication])
-@permission_classes([permissions.IsAdminUser])
-def admin_works_view(request: Request) -> Response:
-
-    if request.method == 'GET':
-        works = models.Work.objects.all()
-        serializer = serializers.WorkSerializer(works, many=True)
-        return Response(serializer.data)
-
-    if request.method == 'POST':
-        serializer = serializers.WorkSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors)
+    def destroy(self, request: Request) -> Response:
+        instance = models.Window.objects.filter(date=request.data['date']).first()
+        if instance:
+            instance.delete()
+            return Response({
+                'window': request.data['date'],
+                'message': 'Window deleted'
+            })
+        return Response({
+            'window': request.data['date'],
+            'message': 'Window not found'
+        })
 
 
-@api_view(['GET', 'PUT'])
-@permission_classes([permissions.AllowAny])
-def user_windows_view(request: Request) -> Response:
+class ClientWindowViewSet(ModelViewSet):
     '''
     Show all free windows or get writing/rewriting to another window by user
     request: /users/windows/
@@ -157,13 +142,18 @@ def user_windows_view(request: Request) -> Response:
         "is_rewrite": true
     }
     '''
+    queryset = models.Window.objects.all()
+    serializer_class = serializers.WindowSerializer
+    permission_classes = permissions.AllowAny
 
-    if request.method == 'GET':
+    def list(self, request):
         windows = models.Window.objects.filter(user=None)
-        serializer = serializers.WindowSerializer(windows, many=True)
+        if len(windows) > 1:
+            serializer = serializers.WindowSerializer(windows, many=True)
+        serializer = serializers.WindowSerializer(windows)
         return Response(serializer.data)
 
-    if request.method == 'PUT':
+    def update(self, request):
         instance = models.Window.objects.get(date=request.data['date'])
         serializer = serializers.WindowSerializer(instance=instance, data=request.data)
         if serializer.is_valid():
