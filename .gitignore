@@ -1,6 +1,6 @@
-.vscode
+.vscode/
 .env
-.venv
-pg_data
-__pycache__
+.venv/
+pg_data/
+__pycache__/
 *.pyc
