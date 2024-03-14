@@ -1,13 +1,13 @@
 from datetime import datetime
 from rest_framework import serializers
-from .models import Client, Window, Work
+from ..models import Client, Window, Procedure
 from pytz import UTC
 
 
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
-        fields = ('name', 'surname', 'phone')
+        fields = '__all__'
 
 
 class PutClientWindowSerializer(ClientSerializer):
@@ -20,7 +20,7 @@ class WindowSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Window
-        fields = ('date', 'client', 'is_approved', 'is_rewrite')
+        fields = '__all__'
 
     def client_forgot_to_rewrite_validator(self, validated_data: dict) -> dict:
         is_rewrite: bool = validated_data.get('is_rewrite')
@@ -72,13 +72,13 @@ class WorkSerializer(serializers.ModelSerializer):
     window = WindowSerializer()
 
     class Meta:
-        model = Work
+        model = Procedure
         fields = ('user', 'window', 'about', 'price', 'comment', 'date_to_remind')
 
     def create(self, validated_data: dict):
         user_data = validated_data.pop('user')
         window_data = validated_data.pop('window')
-        work = Work.objects.create(**validated_data)
+        work = Procedure.objects.create(**validated_data)
         Client.objects.create(work=work, **user_data)
         Window.objects.create(work=work, **window_data)
         return work

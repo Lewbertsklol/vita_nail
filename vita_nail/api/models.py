@@ -12,6 +12,7 @@ class Client(models.Model):
         return f'{self.name} {self.surname} {self.phone}'
 
     class Meta:
+        ordering = ['-name']
         verbose_name = 'Клиент'
         verbose_name_plural = 'Клиенты'
 
@@ -31,10 +32,12 @@ class Window(models.Model):
         return f'{self.date} - {self.client if self.client else "свободно"}'
 
 
-class Work(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+class Procedure(models.Model):
     window = models.ForeignKey(Window, on_delete=models.CASCADE)
-    about = models.TextField()
+    day = models.CharField(max_length=100)
+    work = models.TextField()
+    come_from = models.TextField()
     price = models.IntegerField()
+    price_correction = models.IntegerField()
     comment = models.TextField(default=None, blank=True, null=True)
     date_to_remind = models.DateField(blank=True, null=True)
